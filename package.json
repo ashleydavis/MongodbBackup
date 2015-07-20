@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Real-Serious-Games/MongodbBackup#readme",
   "dependencies": {
     "child-process-promise": "^1.1.0",
-    "cron": "^1.0.9"
+    "cron": "^1.0.9",
+    "yargs": "^3.15.0"
   }
 }
