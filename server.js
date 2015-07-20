@@ -17,7 +17,9 @@ new CronJob({
     cronTime: pollFrequency,
     onTick: function() { 
 
-    	var outputDirectory = path.join(baseOutputDirectory, moment().format('YYYY_MM_DD__HH_m'));
+    	var year = moment().format('YYYY');
+    	var month = moment().format('MM');
+    	var outputDirectory = path.join(baseOutputDirectory, year, month, moment().format('YYYY_MM_DD__HH_m'));
 
     	console.log('Backing database to ' + outputDirectory);
 
