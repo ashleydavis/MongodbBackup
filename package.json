@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Real-Serious-Games/MongodbBackup/issues"
   },
-  "homepage": "https://github.com/Real-Serious-Games/MongodbBackup#readme"
+  "homepage": "https://github.com/Real-Serious-Games/MongodbBackup#readme",
+  "dependencies": {
+    "cron": "^1.0.9"
+  }
 }
