@@ -1,6 +1,8 @@
 var exec = require('child-process-promise').exec;
 var argv = require('yargs').argv;
 var quote = require('quote');
+var moment = require('moment');
+var path = require('path');
 
 var dbhost = argv.host || 'localhost';
 var dbport = argv.port || 27017;
@@ -13,7 +15,8 @@ var CronJob = require('cron').CronJob;
 new CronJob({
     cronTime: pollFrequency,
     onTick: function() { 
-    	var outputDirectory = 'dump';
+
+    	var outputDirectory = path.join('dump', moment().format('YYYY_MM_DD__HH_m'));
 
     	console.log('Backing database to ' + outputDirectory);
 
