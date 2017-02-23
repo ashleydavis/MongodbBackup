@@ -9,29 +9,53 @@ var argv = require('yargs').argv;
 var quote = require('quote');
 var moment = require('moment');
 var path = require('path');
+var Q = require("q");
 
-var dbhost = argv.host || 'localhost';
-var dbport = argv.port || 27017;
+var conf = require('confucious');
 
-console.log('Using database at ' + dbhost + ':' + dbport);
+conf.pushJsonFile("config.json");
+conf.pushArgv();
+
+var databases = conf.get("databases") || [];
+
+if (databases.length <= 0) {
+	console.log('No databases set in the to backup.');
+	process.exit(1);
+}
+
+// Validate databases.
+
+console.log('Using databases:');
+databases.forEach(function(database) {
+	console.log(database.host + ':' + database.port);
+}, this);
 
 var baseOutputDirectory = argv.out || 'dump';
 console.log('Base output directory: ' + baseOutputDirectory);
 
 //
-// Execute a backup now.
+// Backup a single database.
 //
-var doBackup = function () {
-	var year = moment().format('YYYY');
-	var month = moment().format('MM');
-	var outputDirectory = path.join(baseOutputDirectory, year, month, moment().format('YYYY_MM_DD__HH_m'));
+var backupDb = function (database, path) {
 
-	console.log('Backing database to ' + outputDirectory);
+	console.log('Backing databases to: ' + path);
 
-	var cmd = 'mongodump -h ' + quote(dbhost) + ' --port ' + quote(dbport) + ' --out ' + quote(outputDirectory);
+	var cmd = 'mongodump -h ' + quote(database.host) + ' --port ' + quote(database.port) + ' --out ' + quote(path);
+	if (database.name) {
+		cmd += ' --db ' + quote(database.name);
+	}
+
+	if (database.username) {
+		if (!database.password) {
+			throw new Error("No password set for database.")
+		}
+
+		cmd += ' --username ' + quote(database.username) + ' --password ' + quote(database.password); 
+	}
+
 	console.log("> " + cmd);
 
-	exec(cmd)
+	return exec(cmd)
 		.then(function () {
 			console.log('Backed up database');
 		})
@@ -41,7 +65,29 @@ var doBackup = function () {
 		});
 };
 
-if (argv.immediate) {
+//
+// Run the database backup.
+//
+var doBackup = function () {
+
+	var year = moment().format('YYYY');
+	var month = moment().format('MM');
+	var outputDirectory = path.join(baseOutputDirectory, year, month, moment().format('YYYY_MM_DD__HH_m'));
+
+	return databases.reduce(function (promise, database) {
+		return promise.then(function () { return backupDb(database, outputDirectory)})
+			.catch(function (err) {
+				console.error('Failed to backup database.');
+				console.error(err.stack);
+				return Q();
+			});
+		}, Q())
+		.then(function () {
+			console.log("Database backup complete.");
+		});
+}
+
+if (conf.get("immediate")) {
 	doBackup();
 }
 else {
