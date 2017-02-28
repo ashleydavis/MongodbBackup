@@ -41,27 +41,20 @@ var backupDb = function (database, path) {
 	console.log('Backing databases to: ' + path);
 
 	var cmd = 'mongodump -h ' + quote(database.host) + ' --port ' + quote(database.port) + ' --out ' + quote(path);
+
 	if (database.name) {
 		cmd += ' --db ' + quote(database.name);
 	}
 
-	if (database.username) {
-		if (!database.password) {
-			throw new Error("No password set for database.")
-		}
-
+	if (database.username && database.password) {
 		cmd += ' --username ' + quote(database.username) + ' --password ' + quote(database.password); 
 	}
 
 	console.log("> " + cmd);
 
 	return exec(cmd)
-		.then(function () {
-			console.log('Backed up database');
-		})
-		.catch(function (err) {
-			console.error('Failed to backup database.');
-			console.error(err.stack);
+		.then(function (result, result2, result3) {
+			console.log('Backed up database' + database.name);
 		});
 };
 
@@ -72,7 +65,9 @@ var doBackup = function () {
 
 	var year = moment().format('YYYY');
 	var month = moment().format('MM');
-	var outputDirectory = path.join(baseOutputDirectory, year, month, moment().format('YYYY_MM_DD__HH_m'));
+	var timeStamp = moment().format('YYYY_MM_DD__HH_m');
+	
+	var outputDirectory = path.join(baseOutputDirectory, year, month, timeStamp);
 
 	return databases.reduce(function (promise, database) {
 		return promise.then(function () { return backupDb(database, outputDirectory)})
@@ -84,6 +79,10 @@ var doBackup = function () {
 		}, Q())
 		.then(function () {
 			console.log("Database backup complete.");
+		})
+		.catch(function (err) {
+			console.log("Error.");
+			console.log(err);
 		});
 }
 
