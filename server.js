@@ -38,7 +38,7 @@ console.log('Base output directory: ' + baseOutputDirectory);
 //
 var backupDb = function (database, path) {
 
-	console.log('Backing databases to: ' + path);
+	console.log('Backing up database to: ' + path);
 
 	var cmd = 'mongodump -h ' + quote(database.host) + ' --port ' + quote(database.port) + ' --out ' + quote(path);
 
@@ -53,7 +53,7 @@ var backupDb = function (database, path) {
 	console.log("> " + cmd);
 
 	return exec(cmd)
-		.then(function (result, result2, result3) {
+		.then(function () {
 			console.log('Backed up database' + database.name);
 		});
 };
@@ -66,7 +66,7 @@ var doBackup = function () {
 	var year = moment().format('YYYY');
 	var month = moment().format('MM');
 	var timeStamp = moment().format('YYYY_MM_DD__HH_m');
-	
+
 	var outputDirectory = path.join(baseOutputDirectory, year, month, timeStamp);
 
 	return databases.reduce(function (promise, database) {
