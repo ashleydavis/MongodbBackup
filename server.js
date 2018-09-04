@@ -106,7 +106,7 @@ if (conf.get("immediate")) {
 	doBackup();
 }
 else {
-	var pollFrequency = argv.poll || '0 0 * * *';
+	var pollFrequency = argv.poll || process.env.BACKUP_SCHEDULE || '0 0 * * *';
 
 	console.log('Scheduled frequency ' + pollFrequency);
 
