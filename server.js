@@ -24,6 +24,9 @@ if (process.env.DBHOST && process.env.DBNAME) {
 		host: process.env.DBHOST,
 		port: parseInt(process.env.DBPORT) || 27017,
 		name: process.env.DBNAME,
+		username: process.env.DBUSERNAME,
+		password: process.env.DBPASSWORD,
+		authdb: process.env.DBAUTHDB,
 	});
 }
 
@@ -59,6 +62,10 @@ var backupDb = function (database, path) {
 		cmd += ' --username ' + quote(database.username) + ' --password ' + quote(database.password); 
 	}
 
+	if (database.authdb) {
+		cmd += ' --authenticationDatabase ' + quote(database.authdb);
+	}
+	
 	console.log("> " + cmd);
 
 	return exec(cmd)
