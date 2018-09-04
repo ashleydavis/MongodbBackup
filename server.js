@@ -18,6 +18,15 @@ conf.pushArgv();
 
 var databases = conf.get("databases") || [];
 
+if (process.env.DBHOST && process.env.DBNAME) {
+	// Database to backup is specified via env vars.
+	databases.push({
+		host: process.env.DBHOST,
+		port: parseInt(process.env.DBPORT) || 27017,
+		name: process.env.DBNAME,
+	});
+}
+
 if (databases.length <= 0) {
 	console.log('No databases set in the to backup.');
 	process.exit(1);
